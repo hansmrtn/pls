@@ -1,10 +1,6 @@
 # pls
 
-```
-$ pls find duplicate files by comparing checksums
-```
-
-Natural language to shell commands via local LLM.
+> Natural language to shell commands via local LLM.
 
 You know what you want to do, you just can't remember
 if it's `find -exec` or `xargs`, whether `grep` needs `-E` or `-P`, or how
@@ -90,7 +86,7 @@ doctor         check ollama connection and index status
 
 ## Configuration
 
-```toml
+```
 [llm]
 model = "llama3.1"
 embed_model = "nomic-embed-text"
