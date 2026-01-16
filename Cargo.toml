@@ -1,0 +1,34 @@
+[package]
+name = "pls"
+version = "0.1.0"
+edition = "2021"
+description = "A polite AI assistant that speaks fluent Unix"
+license = "MIT"
+authors = ["Your Name"]
+repository = "https://github.com/yourusername/pls"
+keywords = ["cli", "ai", "unix", "shell", "llm"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+# HTTP client for Ollama API
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# SQLite for tool index
+rusqlite = { version = "0.31", features = ["bundled"] }
+
+# Terminal UI
+crossterm = "0.27"
+
+# Directory paths
+dirs = "5.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
