@@ -1,93 +1,117 @@
-# `pls`
+# pls
+
+```
+$ pls find duplicate files by comparing checksums
+```
 
 Natural language to shell commands via local LLM.
 
+You know what you want to do, you just can't remember
+if it's `find -exec` or `xargs`, whether `grep` needs `-E` or `-P`, or how
+`awk` field separators work. pls figures out the incantation.
+
 ## Synopsis
 
-```sh
-    pls [-y] [-e] <query>
-    pls index [--stats]
-    pls config
-    pls doctor
+```
+pls [-y] [-e] <query>
+pls index [--stats]
+pls config
+pls doctor
+pls --history
+pls --edit
 ```
 
 ## Description
 
-`pls` translates natural language into shell commands. It indexes the tools
-installed on your system (via `--help`, `man`, `tldr`) and uses RAG to ensure
-the LLM only suggests commands and flags that actually exist.
+pls translates natural language into shell commands. It indexes the tools
+installed on your system (via `--help`, `man`, `tldr`) and uses RAG to ground
+the LLM, so it only suggests commands and flags that actually exist, most of the time.
 
-Requires Ollama running locally.
+Requires Ollama running locally. Model quality matters -- small models
+hallucinate flags and other strange things.
 
 ## Installation
 
-```sh 
-    ollama pull llama3.2
-    ollama pull nomic-embed-text
-    
-    cargo build --release
-    cp target/release/pls ~/.local/bin/
+```
+ollama pull gemma3:4b
+ollama pull nomic-embed-text
+
+cargo build --release
+cp target/release/pls ~/.local/bin/
 ```
 
 ## Usage
 
-```sh
-    $ pls index
-    250 tools indexed
+```
+$ pls index
+indexed 250 tools
 
-    $ pls find python files larger than 1mb
-      find . -name "*.py" -size +1M
-    [enter]run [e]dit [?]explain [q]uit 
+$ pls find python files larger than 1mb
 
-    $ pls -y show listening ports
-    tcp  0  0 0.0.0.0:22   0.0.0.0:*  LISTEN
-    tcp  0  0 0.0.0.0:5432 0.0.0.0:*  LISTEN
+  find . -name "*.py" -size +1M
 
-    $ pls -e count lines of code by language
-    find . -name "*.py" -o -name "*.rs" -o -name "*.go" | xargs wc -l | sort -n
+[enter] run  [e] edit  [?] explain  [q] quit
+
+$ pls -y show listening ports
+tcp  0  0 0.0.0.0:22   0.0.0.0:*  LISTEN
+tcp  0  0 0.0.0.0:5432 0.0.0.0:*  LISTEN
+
+$ pls -e count lines of code by language
+
+  find . -name "*.py" -o -name "*.rs" -o -name "*.go" | xargs wc -l | sort -n
+
+explanation: finds source files and counts lines, sorted by count
 ```
 
 ## Options
 
-```sh
-    -y, --yolo     skip confirmation for safe commands
-    -e, --explain  show plan without executing
+```
+-y, --yolo     YOLO it for safe commands
+-e, --explain  show plan without executing
 ```
 
 ## Commands
 
-```sh
-    index          index system tools (run once, or after installing new tools)
-    index --stats  show index statistics
-    config         edit configuration file
-    doctor         check ollama connection and index status
+```
+index          index system tools (run once, or after installing new tools)
+index --stats  show index statistics  
+config         edit configuration file
+doctor         check ollama connection and index status
+--history      show recent queries
+--edit         edit and re-run last command
 ```
 
 ## Files
 
 ```
-    ~/.local/share/pls/tools.db    tool index (sqlite)
-    ~/.config/pls/config.toml      configuration
+~/.local/share/pls/index/tools.db   tool index (sqlite + embeddings)
+~/.config/pls/config.toml           configuration
 ```
 
 ## Configuration
 
-```
-    ollama_url = "http://localhost:11434"
-    model = "llama3.2"
-    embed_model = "nomic-embed-text"
-    yolo_mode = false
-    safe_commands = ["ls", "cat", "grep", ...]
-    dangerous_patterns = ["rm -rf /", ...]
+```toml
+[llm]
+model = "llama3.1"
+embed_model = "nomic-embed-text"
+endpoint = "http://localhost:11434"
+
+[safety]
+safe_commands = ["ls", "cat", "grep", ...]
+dangerous_patterns = ["rm -rf /", ...]
+max_output_lines = 100
+
+[behavior]
+confirm_by_default = true
+learn_from_history = true
 ```
 
 ## How it works
 
-1. Query is embedded via ollama
-2. Top-k similar tools retrieved from RAG index
-3. LLM generates command using only those tools and their documented flags
-4. User confirms, edits, or cancels
-5. Command executes, output displayed
+1. `pls index` scans $PATH, extracts help text, embeds each tool
+2. your query gets embedded and matched against the index  
+3. LLM sees only the top-k relevant tools and their documented flags
+4. you see the plan, hit enter to run
 
 ## License
 
