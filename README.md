@@ -4,7 +4,7 @@
 
 You know what you want to do, you just can't remember
 if it's `find -exec` or `xargs`, whether `grep` needs `-E` or `-P`, or how
-`awk` field separators work. pls figures out the incantation.
+`awk` field separators work. If you ask nicely, `pls` figures out the incantation.
 
 ## Synopsis
 
@@ -21,7 +21,7 @@ pls --edit
 
 pls translates natural language into shell commands. It indexes the tools
 installed on your system (via `--help`, `man`, `tldr`) and uses RAG to ground
-the LLM, so it only suggests commands and flags that actually exist, most of the time.
+the LLM, so it only suggests commands and flags that actually exist, _most of the time_.
 
 Requires Ollama running locally. Model quality matters -- small models
 hallucinate flags and other strange things.
