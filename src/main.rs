@@ -15,7 +15,7 @@ use std::{
 // ============================================================================
 
 const APP_NAME: &str = "pls";
-const DEFAULT_MODEL: &str = "llama3.2";
+const DEFAULT_MODEL: &str = "llama3.1";
 const DEFAULT_EMBED_MODEL: &str = "nomic-embed-text";
 const DEFAULT_OLLAMA_URL: &str = "http://localhost:11434";
 const TOP_K_TOOLS: usize = 8;
@@ -691,36 +691,32 @@ fn build_prompt(query: &str, tools: &[Tool], cwd: &str, shell: &str) -> String {
         .join("\n");
 
     format!(
-        r#"You are pls, a Unix command composer. Generate shell commands to accomplish the user's task.
+        r#"You are a Unix command line expert. Generate a shell command to accomplish the task.
 
-AVAILABLE TOOLS (from user's system):
----
+AVAILABLE TOOLS:
 {tool_docs}
----
 
-RULES:
-- Use ONLY the tools listed above - do not invent commands
-- Prefer simple pipelines over complex one-liners
-- Use standard POSIX flags when possible for portability
-- If a task needs a tool not listed, say so in the explanation
-- Always consider: what if the output is huge? (use head, limit)
+STRICT RULES:
+1. Use ONLY tools and flags shown above. Do not invent flags.
+2. If you need a tool not listed, say "I need <tool> which is not available"
+3. Use simple, common patterns. Prefer find, grep, awk, sort, uniq, wc.
+4. For counting lines of code: use find to get files, xargs wc -l
+5. For file sizes: use du -sh or find with -size
+6. Always use relative paths from current directory
 
-OUTPUT FORMAT - respond with ONLY valid JSON, no other text:
-{{
-  "commands": ["command1", "command2 | command3"],
-  "explanation": "Brief description of what this does",
-  "warnings": ["Array of cautions if any, otherwise empty"],
-  "needs_confirmation": true
-}}
+EXAMPLES OF GOOD COMMANDS:
+- Count lines by extension: find . -name "*.rs" | xargs wc -l
+- Find large files: find . -size +10M -type f
+- Disk usage: du -sh */ | sort -h
+- Find and count: find . -type f -name "*.log" | wc -l
 
-CONTEXT:
-- Working directory: {cwd}
-- Shell: {shell}
+Current directory: {cwd}
 
-USER TASK: {query}
+TASK: {query}
 
-Respond with ONLY the JSON object:"#,
-        tool_docs = tool_docs, cwd = cwd, shell = shell, query = query
+Respond with ONLY this JSON, no other text:
+{{"commands": ["the command"], "explanation": "what it does", "warnings": [], "needs_confirmation": true}}"#,
+        tool_docs = tool_docs, cwd = cwd, query = query
     )
 }
 
