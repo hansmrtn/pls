@@ -406,7 +406,7 @@ fn get_last_command(conn: &Connection) -> Result<Option<String>, Box<dyn std::er
     }
 }
 
-fn get_tool_count(conn: &Connection) -> usize {
+fn get_tool_count(conn: &Connection) -> u32 {
     conn.query_row("SELECT COUNT(*) FROM tools", [], |row| row.get(0))
         .unwrap_or(0)
 }
@@ -668,7 +668,7 @@ fn retrieve_relevant_tools(
 // Plan Generation
 // ============================================================================
 
-fn build_prompt(query: &str, tools: &[Tool], cwd: &str, shell: &str) -> String {
+fn build_prompt(query: &str, tools: &[Tool], cwd: &str, _shell: &str) -> String {
     let tool_docs: String = tools
         .iter()
         .map(|t| {
@@ -1221,7 +1221,7 @@ fn cmd_query(
 
 fn print_usage() {
     println!(
-        r#"pls - a polite AI assistant that speaks fluent Unix
+        r#"pls - a CLI assistant that speaks Unix
 
 usage:
   pls <query>         ask pls to do something
