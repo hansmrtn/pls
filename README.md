@@ -2,11 +2,8 @@
 
 > Natural language to shell commands via local LLM.
 
-You know what you want to do, you just can't remember
-if it's `find -exec` or `xargs`, whether `grep` needs `-E` or `-P`, or how
+You know what you want to do, you just don't remember whether `grep` needs `-E` or `-P`, or how
 `awk` field separators work. If you ask nicely, `pls` figures out the incantation.
-
-## Synopsis
 
 ```
 pls [-y] [-e] <query>
@@ -17,14 +14,12 @@ pls --history
 pls --edit
 ```
 
-## Description
-
-pls translates natural language into shell commands. It indexes the tools
+`pls` translates natural language into shell commands. It indexes the tools
 installed on your system (via `--help`, `man`, `tldr`) and uses RAG to ground
 the LLM, so it only suggests commands and flags that actually exist, _most of the time_.
 
 Requires Ollama running locally. Model quality matters -- small models
-hallucinate flags and other strange things.
+hallucinate flags and other strange things. I would not say its entirely robust or safe -- but it is fun.
 
 ## Installation
 
